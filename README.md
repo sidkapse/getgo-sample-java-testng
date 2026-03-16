@@ -15,7 +15,7 @@ This repo exists to give the AI agent a concrete, consistent code style to learn
 | Tool | Version | Install |
 |------|---------|---------|
 | Java JDK | 11 or higher | [adoptium.net](https://adoptium.net) |
-| Apache Maven | 3.8+ | [maven.apache.org](https://maven.apache.org/download.cgi) |
+| Apache Maven | 3.8+ | [maven.apache.org](https://maven.apache.org/download.cgi) | brew install maven
 | Python | 3.9+ (for test data generation only) | [python.org](https://python.org) |
 | Git | Any recent | [git-scm.com](https://git-scm.com) |
 

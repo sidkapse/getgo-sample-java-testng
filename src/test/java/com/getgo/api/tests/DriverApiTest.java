@@ -8,7 +8,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.restassured.response.Response;
-import org.testng.annotations.AIOTestCase("TC-010")
+//import org.testng.annotations.AIOTestCase;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
