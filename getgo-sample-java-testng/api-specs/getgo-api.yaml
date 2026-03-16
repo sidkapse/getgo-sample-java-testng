@@ -1,0 +1,408 @@
+openapi: 3.0.3
+info:
+  title: GetGo Mobility API
+  description: |
+    Core API for GetGo's ride-hailing platform.
+    Covers Booking, Driver, and Ride lifecycle endpoints.
+  version: 1.0.0
+  contact:
+    name: GetGo Engineering
+    email: engineering@getgo.com
+
+servers:
+  - url: https://api.getgo-staging.com
+    description: Staging environment
+  - url: https://api.getgo.com
+    description: Production environment
+
+tags:
+  - name: Bookings
+    description: Create and manage ride bookings
+  - name: Drivers
+    description: Driver registration and availability
+  - name: Rides
+    description: Active ride lifecycle management
+
+paths:
+
+  # ── BOOKINGS ───────────────────────────────────────────────────────────────
+
+  /bookings:
+    post:
+      tags: [Bookings]
+      summary: Create a new booking
+      operationId: createBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+            example:
+              passenger_id: "PSG-1001"
+              pickup_lat: 1.3048
+              pickup_lng: 103.8318
+              dropoff_lat: 1.2966
+              dropoff_lng: 103.8536
+              vehicle_type: "STANDARD"
+              payment_method: "CARD"
+      responses:
+        '201':
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '400':
+          description: Invalid or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /bookings/{bookingId}:
+    get:
+      tags: [Bookings]
+      summary: Get booking by ID
+      operationId: getBookingById
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "BK-9001"
+      responses:
+        '200':
+          description: Booking found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ── DRIVERS ────────────────────────────────────────────────────────────────
+
+  /drivers:
+    post:
+      tags: [Drivers]
+      summary: Register a new driver
+      operationId: registerDriver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDriverRequest'
+            example:
+              full_name: "Ahmad Bin Ali"
+              nric: "S9012345A"
+              phone: "+6591234567"
+              vehicle_plate: "SBX1234Z"
+              vehicle_type: "STANDARD"
+              license_expiry: "2026-12-31"
+      responses:
+        '201':
+          description: Driver registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverResponse'
+        '409':
+          description: Driver with this NRIC already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /drivers/{driverId}:
+    get:
+      tags: [Drivers]
+      summary: Get driver profile by ID
+      operationId: getDriverById
+      parameters:
+        - name: driverId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "DR-5001"
+      responses:
+        '200':
+          description: Driver profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /drivers/{driverId}/availability:
+    patch:
+      tags: [Drivers]
+      summary: Update driver availability status
+      operationId: updateDriverAvailability
+      parameters:
+        - name: driverId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [availability]
+              properties:
+                availability:
+                  type: string
+                  enum: [ONLINE, OFFLINE, BUSY]
+      responses:
+        '200':
+          description: Availability updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverResponse'
+
+  # ── RIDES ──────────────────────────────────────────────────────────────────
+
+  /rides/{bookingId}/start:
+    post:
+      tags: [Rides]
+      summary: Driver starts a ride
+      operationId: startRide
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [driver_id, current_lat, current_lng]
+              properties:
+                driver_id:
+                  type: string
+                current_lat:
+                  type: number
+                current_lng:
+                  type: number
+      responses:
+        '200':
+          description: Ride started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RideResponse'
+
+  /rides/{rideId}/complete:
+    post:
+      tags: [Rides]
+      summary: Driver completes a ride
+      operationId: completeRide
+      parameters:
+        - name: rideId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [end_lat, end_lng, distance_km]
+              properties:
+                end_lat:
+                  type: number
+                end_lng:
+                  type: number
+                distance_km:
+                  type: number
+      responses:
+        '200':
+          description: Ride completed with fare
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RideResponse'
+
+  /rides/{rideId}/fare:
+    get:
+      tags: [Rides]
+      summary: Get fare breakdown for a completed ride
+      operationId: getRideFare
+      parameters:
+        - name: rideId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fare breakdown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FareResponse'
+
+  /rides/{rideId}/rate:
+    post:
+      tags: [Rides]
+      summary: Passenger rates a completed ride
+      operationId: rateRide
+      parameters:
+        - name: rideId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rating]
+              properties:
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                comment:
+                  type: string
+                  maxLength: 300
+      responses:
+        '201':
+          description: Rating saved
+        '422':
+          description: Invalid rating value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+# ── COMPONENTS ────────────────────────────────────────────────────────────────
+
+components:
+
+  schemas:
+
+    CreateBookingRequest:
+      type: object
+      required: [passenger_id, pickup_lat, pickup_lng, dropoff_lat, dropoff_lng, vehicle_type, payment_method]
+      properties:
+        passenger_id:   { type: string }
+        pickup_lat:     { type: number }
+        pickup_lng:     { type: number }
+        dropoff_lat:    { type: number }
+        dropoff_lng:    { type: number }
+        vehicle_type:
+          type: string
+          enum: [STANDARD, PREMIUM, XL]
+        payment_method:
+          type: string
+          enum: [CARD, CASH, WALLET]
+
+    BookingResponse:
+      type: object
+      properties:
+        booking_id:     { type: string }
+        passenger_id:   { type: string }
+        status:
+          type: string
+          enum: [PENDING, ACCEPTED, ONGOING, COMPLETED, CANCELLED]
+        vehicle_type:   { type: string }
+        payment_method: { type: string }
+        created_at:     { type: string, format: date-time }
+
+    RegisterDriverRequest:
+      type: object
+      required: [full_name, nric, phone, vehicle_plate, vehicle_type, license_expiry]
+      properties:
+        full_name:       { type: string }
+        nric:            { type: string, pattern: '^[STFG]\d{7}[A-Z]$' }
+        phone:           { type: string }
+        vehicle_plate:   { type: string }
+        vehicle_type:    { type: string, enum: [STANDARD, PREMIUM, XL] }
+        license_expiry:  { type: string, format: date }
+
+    DriverResponse:
+      type: object
+      properties:
+        driver_id:      { type: string }
+        full_name:      { type: string }
+        nric:           { type: string }
+        phone:          { type: string }
+        vehicle_plate:  { type: string }
+        vehicle_type:   { type: string }
+        availability:
+          type: string
+          enum: [ONLINE, OFFLINE, BUSY]
+        status:
+          type: string
+          enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED]
+
+    RideResponse:
+      type: object
+      properties:
+        ride_id:        { type: string }
+        booking_id:     { type: string }
+        driver_id:      { type: string }
+        status:         { type: string, enum: [ONGOING, COMPLETED, CANCELLED] }
+        fare_amount:    { type: number }
+        currency:       { type: string, example: SGD }
+
+    FareResponse:
+      type: object
+      properties:
+        ride_id:        { type: string }
+        base_fare:      { type: number }
+        distance_fare:  { type: number }
+        surcharge:      { type: number }
+        total_fare:     { type: number }
+        currency:       { type: string, example: SGD }
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:    { type: string }
+        code:     { type: string }
+        trace_id: { type: string }
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid auth token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+security:
+  - BearerAuth: []

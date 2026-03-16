@@ -1,0 +1,93 @@
+# ── Maven ─────────────────────────────────────────────────────────────────────
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ── Java ──────────────────────────────────────────────────────────────────────
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+# ── Test Output ───────────────────────────────────────────────────────────────
+test-output/
+allure-results/
+allure-report/
+surefire-reports/
+logs/
+
+# ── IDE — IntelliJ IDEA ───────────────────────────────────────────────────────
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# ── IDE — Eclipse ─────────────────────────────────────────────────────────────
+.classpath
+.project
+.settings/
+.factorypath
+bin/
+
+# ── IDE — VS Code ─────────────────────────────────────────────────────────────
+.vscode/
+*.code-workspace
+
+# ── IDE — NetBeans ────────────────────────────────────────────────────────────
+nbproject/private/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── Python (test data generator) ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# ── Secrets & Config ──────────────────────────────────────────────────────────
+.env
+.env.local
+.env.staging
+.env.production
+*.token
+secrets.properties
+config/local.properties
+
+# ── Test Data — keep Excel, ignore generated/temp files ──────────────────────
+test-data/temp/
+test-data/*.tmp
+# Note: test-data/getgo_test_data.xlsx IS committed intentionally
+
+# ── Allure ────────────────────────────────────────────────────────────────────
+.allure/
