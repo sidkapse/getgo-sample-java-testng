@@ -1,4 +1,4 @@
-# GetGo Sample Java/TestNG API Test Suite
+# GetGo POC - Agent 1
 
 A realistic sample Java API test project used as the **learning codebase** for the Agent 1 (TestGenerationAgent) POC. The AI agent reads this repo to understand coding patterns, naming conventions, and test structure before generating new tests.
 
